@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import gsap from 'gsap';
 import './style.css';  
 
 // Scena
@@ -28,6 +29,7 @@ const sizes = {
 // Light
 const light = new THREE.PointLight(0xffffff, 1 , 100);
 light.position.set(0, 10, 10);
+light.intensity = 1.55;
 scene.add(light);
 
 // Renderer
@@ -66,3 +68,32 @@ const loop = () => {
 }
 
 loop();
+
+// TimeLine magic
+const tl = gsap.timeline({defaults:{ duration: 1} });
+tl.fromTo(mesh.scale,  {z:0, x:0, y:0}, { z:1, x:1, y:1 });
+tl.fromTo('nav', { y: '-100' }, { y: "0%" });
+tl.fromTo('title', {opacity: 0}, {opacity:1})
+
+
+// Mouse animation Color
+let rgb = [];
+let mouseDown = false;
+window.addEventListener('mousedown', () => {mouseDown= true});
+window.addEventListener('mouseup', () => {mouseDown= false});
+
+window.addEventListener('mousemove', (e) => {
+  if(mouseDown){
+    rgb = [
+      Math.round((e.pageX / sizes.width) * 255),
+      Math.round((e.pageY / sizes.height) * 255),
+      150
+    ];
+    let newColor = new THREE.Color(`rgb(${rgb.join(",")})`);
+    gsap.to(mesh.material.color, {
+      r: newColor.r,
+      g: newColor.g,
+      b: newColor.b
+    });
+  }
+})
